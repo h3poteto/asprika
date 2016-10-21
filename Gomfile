@@ -1,0 +1,4 @@
+gom "github.com/spf13/pflag"
+gom "golang.org/x/crypto/ssh"
+gom "golang.org/x/crypto/ssh/agent"
+gom "gopkg.in/yaml.v2"
