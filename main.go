@@ -68,9 +68,13 @@ func initialize(configFile *string) (*Deploy, error) {
 		return nil, err
 	}
 
-	s := &sharedDirectory{
-		Source: m["shared_directory"].(map[interface{}]interface{})["source"].(string),
-		Target: m["shared_directory"].(map[interface{}]interface{})["target"].(string),
+	var s *sharedDirectory
+
+	if m["shared_directory"] != nil {
+		s = &sharedDirectory{
+			Source: m["shared_directory"].(map[interface{}]interface{})["source"].(string),
+			Target: m["shared_directory"].(map[interface{}]interface{})["target"].(string),
+		}
 	}
 
 	p := &portForward{

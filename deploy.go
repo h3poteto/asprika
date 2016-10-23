@@ -175,7 +175,13 @@ func (d *Deploy) serviceCreate() error {
 	defer session.Close()
 
 	log.Println("Service create...")
-	command := fmt.Sprintf("docker service create --publish %d:%d --name %s --replicas 2 --update-delay 20s --stop-grace-period 10s --mount type=bind,source=%s,target=%s,readonly=false %s %s:%s", d.PortForward.HostPort, d.PortForward.ContainerPort, d.ContainerName, d.SharedDirectory.Source, d.SharedDirectory.Target, envOptions, d.DockerImageName, d.DockerImageTag)
+	var command string
+
+	if d.SharedDirectory != nil {
+		command = fmt.Sprintf("docker service create --publish %d:%d --name %s --replicas 2 --update-delay 20s --stop-grace-period 10s --mount type=bind,source=%s,target=%s,readonly=false %s %s:%s", d.PortForward.HostPort, d.PortForward.ContainerPort, d.ContainerName, d.SharedDirectory.Source, d.SharedDirectory.Target, envOptions, d.DockerImageName, d.DockerImageTag)
+	} else {
+		command = fmt.Sprintf("docker service create --publish %d:%d --name %s --replicas 2 --update-delay 20s --stop-grace-period 10s %s %s:%s", d.PortForward.HostPort, d.PortForward.ContainerPort, d.ContainerName, envOptions, d.DockerImageName, d.DockerImageTag)
+	}
 	log.Println(command)
 	if err := session.Run(command); err != nil {
 		return err
