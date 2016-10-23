@@ -10,6 +10,16 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type sharedDirectory struct {
+	Source string
+	Target string
+}
+
+type portForward struct {
+	ContainerPort int
+	HostPort      int
+}
+
 type Deploy struct {
 	User string
 	Host string
@@ -18,11 +28,13 @@ type Deploy struct {
 	DockerImageName string
 	DockerImageTag  string
 	ContainerName   string
-	ContainerPort   int
+	PortForward     *portForward
 
-	SharedDirectory string
+	EnvFile         string
+	SharedDirectory *sharedDirectory
 
-	HostName string
+	HostName  string
+	Migration string
 
 	Client *ssh.Client
 }
@@ -55,6 +67,17 @@ func initialize(configFile *string) (*Deploy, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	s := &sharedDirectory{
+		Source: m["shared_directory"].(map[interface{}]interface{})["source"].(string),
+		Target: m["shared_directory"].(map[interface{}]interface{})["target"].(string),
+	}
+
+	p := &portForward{
+		ContainerPort: m["port_forward"].(map[interface{}]interface{})["container_port"].(int),
+		HostPort:      m["port_forward"].(map[interface{}]interface{})["host_port"].(int),
+	}
+
 	d := &Deploy{
 		User:            m["user"].(string),
 		Host:            m["host"].(string),
@@ -62,9 +85,11 @@ func initialize(configFile *string) (*Deploy, error) {
 		DockerImageName: m["docker_image_name"].(string),
 		DockerImageTag:  m["docker_image_tag"].(string),
 		ContainerName:   m["container_name"].(string),
-		ContainerPort:   m["container_port"].(int),
-		SharedDirectory: m["shared_directory"].(string),
+		PortForward:     p,
+		EnvFile:         m["env_file"].(string),
+		SharedDirectory: s,
 		HostName:        m["host_name"].(string),
+		Migration:       m["migration"].(string),
 	}
 	return d, nil
 }

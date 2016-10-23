@@ -129,7 +129,8 @@ func (d *Deploy) migration() error {
 	defer session.Close()
 
 	log.Println("db migration...")
-	command := fmt.Sprintf("docker run --rm --env-file /home/ubuntu/.docker-env %v gom exec goose -env production up", d.DockerImageName)
+	command := fmt.Sprintf("docker run --rm --env-file %s %s %s", d.EnvFile, d.DockerImageName, d.Migration)
+	log.Println(command)
 	if err := session.Run(command); err != nil {
 		return err
 	}
@@ -174,7 +175,7 @@ func (d *Deploy) serviceCreate() error {
 	defer session.Close()
 
 	log.Println("Service create...")
-	command := fmt.Sprintf("docker service create --publish %d:9090 --name %s --replicas 2 --update-delay 20s --stop-grace-period 10s --mount type=bind,source=%s,target=/root/fascia/public/statics,readonly=false %s %s:%s", d.ContainerPort, d.ContainerName, d.SharedDirectory, envOptions, d.DockerImageName, d.DockerImageTag)
+	command := fmt.Sprintf("docker service create --publish %d:%d --name %s --replicas 2 --update-delay 20s --stop-grace-period 10s --mount type=bind,source=%s,target=%s,readonly=false %s %s:%s", d.PortForward.HostPort, d.PortForward.ContainerPort, d.ContainerName, d.SharedDirectory.Source, d.SharedDirectory.Target, envOptions, d.DockerImageName, d.DockerImageTag)
 	log.Println(command)
 	if err := session.Run(command); err != nil {
 		return err
@@ -256,7 +257,7 @@ func (d *Deploy) parseEnvfile() (*[]string, error) {
 	session.Stdout = nil
 	session.Stderr = nil
 
-	command := fmt.Sprintf("cat /home/ubuntu/.docker-env")
+	command := fmt.Sprintf("cat %s", d.EnvFile)
 	log.Println(command)
 	result, err := session.CombinedOutput(command)
 	if err != nil {
