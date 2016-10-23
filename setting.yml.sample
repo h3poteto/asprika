@@ -8,6 +8,9 @@ port_forward:
   container_port: 8080
   host_port: 8080
 env_file: "/home/ubuntu/.docker-env" # Custom environment file for docker
+shared_directory:
+  source: "/home/ubuntu" # Shared directory in host machine
+  target: "/opt" # Shared directoy in docker container
 host_name: "example.com" # Host name for curl check
 migration: "migrate" # Custom migration command
 
