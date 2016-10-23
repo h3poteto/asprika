@@ -1,0 +1,13 @@
+user: "root" # User name on remote host for ssh
+host: "192.168.0.0" # Remote host name or IP address for ssh
+port: ":22" # Remote host port for ssh
+docker_image_name: "nginx"  # Docker image name on hub.docker.io
+docker_image_tag: "latest" # Docker image tag
+container_name: "nginx" # Custom container name
+port_forward:
+  container_port: 8080
+  host_port: 8080
+env_file: "/home/ubuntu/.docker-env" # Custom environment file for docker
+host_name: "example.com" # Host name for curl check
+migration: "migrate" # Custom migration command
+
