@@ -210,7 +210,7 @@ func (d *Deploy) checkServiceLiving() (int, error) {
 	session.Stderr = nil
 
 	log.Println("Check service is living...")
-	command := fmt.Sprintf("curl --insecure -H '%v' https://127.0.0.1 -o /dev/null -w '%%{http_code}' -s", d.HostName)
+	command := fmt.Sprintf("curl --insecure -H '%v' http://127.0.0.1 -o /dev/null -w '%%{http_code}' -s", d.HostName)
 	log.Println(command)
 	result, err := session.CombinedOutput(command)
 	if err != nil {
