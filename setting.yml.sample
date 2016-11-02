@@ -12,5 +12,6 @@ shared_directory:
   source: "/home/ubuntu" # Shared directory in host machine
   target: "/opt" # Shared directoy in docker container
 host_name: "example.com" # Host name for curl check
+protocol: "https" # Protocol for curl check, default is http
 migration: "migrate" # Custom migration command
 

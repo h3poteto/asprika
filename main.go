@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"io/ioutil"
 	"log"
 
@@ -34,6 +35,7 @@ type Deploy struct {
 	SharedDirectory *sharedDirectory
 
 	HostName  string
+	Protocol  string
 	Migration string
 
 	Client *ssh.Client
@@ -68,15 +70,6 @@ func initialize(configFile *string) (*Deploy, error) {
 		return nil, err
 	}
 
-	var s *sharedDirectory
-
-	if m["shared_directory"] != nil {
-		s = &sharedDirectory{
-			Source: m["shared_directory"].(map[interface{}]interface{})["source"].(string),
-			Target: m["shared_directory"].(map[interface{}]interface{})["target"].(string),
-		}
-	}
-
 	p := &portForward{
 		ContainerPort: m["port_forward"].(map[interface{}]interface{})["container_port"].(int),
 		HostPort:      m["port_forward"].(map[interface{}]interface{})["host_port"].(int),
@@ -91,9 +84,26 @@ func initialize(configFile *string) (*Deploy, error) {
 		ContainerName:   m["container_name"].(string),
 		PortForward:     p,
 		EnvFile:         m["env_file"].(string),
-		SharedDirectory: s,
+		SharedDirectory: nil,
 		HostName:        m["host_name"].(string),
+		Protocol:        "http",
 		Migration:       m["migration"].(string),
 	}
+
+	if m["shared_directory"] != nil {
+		s := &sharedDirectory{
+			Source: m["shared_directory"].(map[interface{}]interface{})["source"].(string),
+			Target: m["shared_directory"].(map[interface{}]interface{})["target"].(string),
+		}
+		d.SharedDirectory = s
+	}
+
+	if m["protocol"] != nil {
+		if m["protocol"].(string) != "http" && m["protocol"].(string) != "https" {
+			return nil, errors.New("Unknown protocol")
+		}
+		d.Protocol = m["protocol"].(string)
+	}
+
 	return d, nil
 }
